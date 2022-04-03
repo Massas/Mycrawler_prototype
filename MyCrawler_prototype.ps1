@@ -1,4 +1,56 @@
 
+function Start-Parse {
+	param ($responsestr)
+	Write-Host "[Start-Parse] START"
+
+	$findkey_http = 'https://'
+    $endofurl = '&amp;'
+	$readpoint = 0
+	$ret = $false
+	$urlarr = @()
+	$searchstr = $responsestr
+
+	# 終了条件をミスっている
+	do{
+		$searchstrlen = $searchstr.length
+		Write-Host "searchstr length : $searchstrlen"
+		$starturl = $searchstr.IndexOf($findkey_http)
+		Write-Host "starturl : $starturl"
+		$endurl = $searchstr.IndexOf($endofurl)
+		Write-Host "endurl : $endurl"
+
+		while ($starturl -gt $endurl -and ($searchstr.IndexOf($endofurl) -ne -1)) {
+			$starturl = $searchstr.IndexOf($findkey_http)
+			Write-Host "starturl : $starturl"
+			$endurl = $searchstr.IndexOf($endofurl)
+			Write-Host "endurl : $endurl"
+			$readpoint = $starturl - 1
+			$searchstr_tmp = $searchstr.Substring($readpoint, ($searchstrlen - $readpoint))
+			Write-Host "searchstr tmp length : "$searchstr_tmp.length
+			$searchstr = $searchstr_tmp
+			$searchstrlen = $searchstr.length
+		}
+		$urlstr = $searchstr[$starturl .. $endurl] -join '' # 文字列からURLを切り出す
+		$url = [System.Web.HttpUtility]::UrlDecode($urlstr)
+		Write-Host "url found : $url"
+		$urlarr += $url
+		$readpoint = $endurl
+		$searchstr_tmp = $searchstr.Substring($readpoint, ($searchstrlen - $readpoint))
+		$searchstr = $searchstr_tmp
+	}while($searchstr.IndexOf($endofurl) -ne -1)
+
+	if($urlarr.Count -eq 0){
+		Write-Host "There is no url!"
+	}else{
+		$urlcnt = $urlarr.Count
+		Write-Host "There are $urlcnt urls found!"
+		Write-Host $urlarr
+	}
+	Write-Host "[Start-Parse] END"
+
+	return
+}
+
 function Get-Word {
 	param ($arr)
 	Write-Host "[Get-Word] START"
@@ -26,9 +78,13 @@ function Start-Crawling {
 	$uri += ('&' + 'q=' + $searchkey)
 	Write-Host "$uri"
     $response = Invoke-WebRequest -Uri $uri -UseBasicParsing
+	$responsestr = [string]$response
+	# parse response and list urls
+	Start-Parse($responsestr)
 
-	$response | Add-Content $logfile -Encoding UTF8
-	$response.Content | Add-Content $logfile -Encoding UTF8
+	"URI: $uri" | Add-Content $logfile -Encoding UTF8
+#	$response | Add-Content $logfile -Encoding UTF8
+#	$response.Content | Add-Content $logfile -Encoding UTF8
 
 	Write-Host "[Start-Crawling] END"
 
@@ -50,6 +106,7 @@ function Show-File {
 }
 
 # main function
+Add-Type -AssemblyName System.Web	# url encode and decode
 
 # global variables
 $logfile = "./logfile.log"
