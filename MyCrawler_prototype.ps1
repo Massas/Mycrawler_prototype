@@ -10,7 +10,6 @@ function Start-Parse {
 	$urlarr = @()
 	$searchstr = $responsestr
 
-	# 終了条件をミスっている
 	do{
 		$searchstrlen = $searchstr.length
 		Write-Host "searchstr length : $searchstrlen"
@@ -30,8 +29,13 @@ function Start-Parse {
 			$searchstr = $searchstr_tmp
 			$searchstrlen = $searchstr.length
 		}
-		$urlstr = $searchstr[$starturl .. $endurl] -join '' # 文字列からURLを切り出す
-		$url = [System.Web.HttpUtility]::UrlDecode($urlstr)
+		$urlstr = $searchstr[$starturl .. ($endurl -1)] -join '' # 文字列からURLを切り出す
+
+		if($urlstr -match $findkey_http){
+			$url = [System.Web.HttpUtility]::UrlDecode($urlstr) # URLをデコードする
+		}else{
+			continue
+		}
 		Write-Host "url found : $url"
 		$urlarr += $url
 		$readpoint = $endurl
@@ -45,6 +49,7 @@ function Start-Parse {
 		$urlcnt = $urlarr.Count
 		Write-Host "There are $urlcnt urls found!"
 		Write-Host $urlarr
+		$urlarr | Add-Content $logfile -Encoding UTF8
 	}
 	Write-Host "[Start-Parse] END"
 
@@ -77,12 +82,13 @@ function Start-Crawling {
 	$searchkey = Get-Word($searchkeyarr)
 	$uri += ('&' + 'q=' + $searchkey)
 	Write-Host "$uri"
-    $response = Invoke-WebRequest -Uri $uri -UseBasicParsing
+	"URI: $uri" | Add-Content $logfile -Encoding UTF8
+
+	$response = Invoke-WebRequest -Uri $uri -UseBasicParsing
 	$responsestr = [string]$response
 	# parse response and list urls
 	Start-Parse($responsestr)
 
-	"URI: $uri" | Add-Content $logfile -Encoding UTF8
 #	$response | Add-Content $logfile -Encoding UTF8
 #	$response.Content | Add-Content $logfile -Encoding UTF8
 
