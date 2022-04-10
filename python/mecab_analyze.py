@@ -1,3 +1,4 @@
+from itertools import accumulate
 import MeCab
 import time
 import sys
@@ -5,21 +6,22 @@ import sys
 # 引数で指定されたファイル名を取得
 from sys import argv
 input_file_name= sys.argv[1]
- 
+accumulate_file_name = "python/accumulate.txt"
+
 # ファイル名を出力
 #print(input_file_name)
  
 # 指定されたファイルを読み込む
-with open(input_file_name, encoding="UTF-8") as f:
+with open(input_file_name, encoding="UTF-8") as f, open(accumulate_file_name, encoding="UTF-8") as f_a:
     data = f.read()
+    # 単語情報集積ファイルを読み込む
+    accum_lines = f_a.readlines()
 
-# 単語情報集積ファイルを読み込む
-input_accumulate_file = './accumulate.txt'
-f_a = open(input_accumulate_file, encoding="UTF-8")
-accum_data = f_a.readlines()
-
-# 集積データを改行で分割
-accum_lines = accum_data.split("\n")
+# debug
+print('[ACCUM_DEBUG]')
+for accum_dbg in accum_lines:
+    print(accum_dbg)
+    print(type(accum_dbg))
 
 # 形態素解析結果を取得する
 text = MeCab.Tagger().parse(data)
@@ -70,4 +72,4 @@ print('Total : ' + str(cnt_word))
 print('Words : ' + ', '.join(words))
 print('candidates: ')
 for accum_line in accum_lines:
-    print(accum_data)
+    print(accum_line)
