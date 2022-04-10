@@ -1,6 +1,4 @@
-from itertools import accumulate
 import MeCab
-import time
 import sys
  
 # 引数で指定されたファイル名を取得
