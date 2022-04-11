@@ -3,6 +3,7 @@ function Invoke-MecabPython ($s) {
     $pythonPath = "{0}\python\mecab_analyze.py" -f $PSScriptRoot
     Invoke-Expression -Command ("python -B '{0}' '{1}'" -f $pythonPath, $s)
 }
+
 function Start-Parse {
 	param ($responsestr)
 	Write-Host "[Start-Parse] START"
@@ -14,7 +15,6 @@ function Start-Parse {
 	$searchstr = $responsestr
 
 	# mecab sample
-	Invoke-MecabPython($candidatefile)
 	Invoke-MecabPython($searchkeyfile)
 
 	do{
