@@ -1,4 +1,5 @@
 import csv
+from math import fabs
 import MeCab
 import sys
  
@@ -35,14 +36,14 @@ cnt_word = 0 # 名詞の数
 words = [] # 抽出した単語のリスト
 result_format = [['','',0]]
 candidates = [] # 単語と品詞と抽出した回数の記録を2次元配列で実現
+linenum = 0
 
 # 各行ごとに処理を行う
 for line in lines:
     #形態素解析結果を分割
     blocks = line.split("\t")
-    print('[DEBUG]' + 'blocks: ')
-    for dbg in blocks:
-        print(dbg)
+
+    is_new_word = False
      
     if len(blocks) > 1:
         word = blocks[0] #対象文字列（例：すもも）
@@ -50,37 +51,44 @@ for line in lines:
         items = info.split(",") #品詞情報を分割
 
         if words.count(word) == 0:
+            print("========================================================")
             print("品詞解析")
-            for item in items:                 
+            for item in items:
+                # カンマは解析しない
+                print("word = " + word + ", item = " + item)
+                if word == "," or word == " ":
+                    break
+
                 # 対象文字の品詞が名詞、形容詞、動詞、副詞、いずれかの場合、カウンタをインクリメント
                 if item == "名詞" or item == "形容詞" or item == "動詞" or item == "副詞":
                     print('item == "名詞" or item == "形容詞" or item == "動詞" or item == "副詞"')
                     cnt_word += 1
                     words.append(word)
-                    is_new_word = False
 
-                    num = 0
                     for accum_line in accum_lines:
                         accum_blocks = accum_line.split(",")
                         accum_word = accum_blocks[0].replace("'", "")
                         accum_partspeech = accum_blocks[1]
                         accum_count = int(accum_blocks[2])
-                        print('[DEBUG]' + 'word: '+ word + 'candidate: ' + accum_word)
+                        print('[DEBUG]' + 'word: '+ word + ', candidate: ' + accum_word)
                         if accum_word == word:
                             print("accum_word == word")
                             accum_count+=1
                             accum_blocks[2] = str(accum_count)
                             is_new_word = True
                             print("accum_word:" + accum_word + " accum_count: " + str(accum_count))
-                            accum_lines[num] = "'" + accum_blocks[0]+ "'" + "," + "'" + accum_blocks[1] + "'" + ","  + str(accum_blocks[2])
-                            num+=1
+                            accum_lines[linenum] = accum_blocks[0]+ "," + accum_blocks[1] + ","  + str(accum_blocks[2])
+                            print("accum_lines[num]: " + accum_lines[linenum])
                             break
-                    
-                    if is_new_word == False:
-                        print("is_new_word == False")
-                        # candidates.extend(result_format)
-                        new_word = [word,info,0]
-                        accum_lines.append(new_word)
+            
+                if is_new_word == False:
+                    print("is_new_word == False")
+                    # candidates.extend(result_format)
+                    new_word = accum_word + "," + accum_partspeech + "," + str(0)
+                    accum_lines.append(new_word)
+                else:
+                    break
+    linenum+=1
 
 # 結果を出力する
 print('Total : ' + str(cnt_word))
