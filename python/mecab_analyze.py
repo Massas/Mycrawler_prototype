@@ -1,5 +1,4 @@
 import csv
-from math import fabs
 import MeCab
 import sys
  
