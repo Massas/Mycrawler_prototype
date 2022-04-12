@@ -20,16 +20,17 @@ with open(accumulate_file_name, encoding="UTF-8") as f_a:
     for csvobj in csv.reader(accum_lines):
         print(csvobj)
 
-# debug
-#print('[ACCUM_DEBUG]')
-#for accum_dbg in accum_lines:
-#    print(accum_dbg)
-
 # 形態素解析結果を取得する
 text = MeCab.Tagger().parse(data)
- 
 # 形態素解析結果を改行で分割
 lines = text.split("\n")
+
+print('[LINES_DEBUG]')
+for lines_dbg in lines:
+    if lines_dbg == "" or lines_dbg == " " or lines_dbg == "EOS" or lines_dbg[0] == ",":
+        continue
+    else:
+        print("[" + lines_dbg + "]")
 
 cnt_word = 0 # 名詞の数
 words = [] # 抽出した単語のリスト
@@ -39,10 +40,13 @@ linenum = 0
 
 # 各行ごとに処理を行う
 for line in lines:
+    if line == "" or line == " " or line == "EOS" or line[0] == ",":
+        continue
+
     #形態素解析結果を分割
     blocks = line.split("\t")
 
-    is_new_word = False
+    is_exist_word = False
      
     if len(blocks) > 1:
         word = blocks[0] #対象文字列（例：すもも）
@@ -59,8 +63,8 @@ for line in lines:
                     break
 
                 # 対象文字の品詞が名詞、形容詞、動詞、副詞、いずれかの場合、カウンタをインクリメント
-                if item == "名詞" or item == "形容詞" or item == "動詞" or item == "副詞":
-                    print('item == "名詞" or item == "形容詞" or item == "動詞" or item == "副詞"')
+                if item == "名詞" or item == "固有名詞" or item == "形容詞" or item == "動詞" or item == "副詞":
+                    print('item == "名詞" or item == "固有名詞" or item == "形容詞" or item == "動詞" or item == "副詞"')
                     cnt_word += 1
                     words.append(word)
 
@@ -69,19 +73,19 @@ for line in lines:
                         accum_word = accum_blocks[0].replace("'", "")
                         accum_partspeech = accum_blocks[1]
                         accum_count = int(accum_blocks[2])
-                        print('[DEBUG]' + 'word: '+ word + ', candidate: ' + accum_word)
-                        if accum_word == word:
-                            print("accum_word == word")
+                        print('[DEBUG]' + 'word: '+ word + ', accum_word: ' + accum_word)
+                        if word == accum_word:
+                            print("word == accum_word")
                             accum_count+=1
                             accum_blocks[2] = str(accum_count)
-                            is_new_word = True
+                            is_exist_word = True
                             print("accum_word:" + accum_word + " accum_count: " + str(accum_count))
                             accum_lines[linenum] = accum_blocks[0]+ "," + accum_blocks[1] + ","  + str(accum_blocks[2])
                             print("accum_lines[num]: " + accum_lines[linenum])
                             break
             
-                if is_new_word == False:
-                    print("is_new_word == False")
+                if is_exist_word == False:
+                    print("is_exist_word == False")
                     # candidates.extend(result_format)
                     new_word = accum_word + "," + accum_partspeech + "," + str(0)
                     accum_lines.append(new_word)
