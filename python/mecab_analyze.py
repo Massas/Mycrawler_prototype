@@ -104,8 +104,9 @@ print('*****************************************')
 print('Total : ' + str(cnt_word))
 print('Words : ' + ', '.join(words))
 print('candidates: ')
-for accum_line in accum_lines:
-    print(accum_line)
 print('*****************************************')
-#    f_a.write(accum_line)
-f_a.close
+# 集積ファイルへの書き込み
+with open(accumulate_file_name, 'w', encoding="UTF-8") as f_a:
+    for accum_line in accum_lines:
+        print(accum_line)
+        f_a.write(accum_line + '\n')
