@@ -6,13 +6,6 @@ import sys
 from sys import argv
 input_file_name= sys.argv[1]
 
-# ファイル名を出力
-#print(input_file_name)
- 
-# 指定されたファイルを読み込む
-with open(input_file_name, encoding="UTF-8") as f:
-    data = f.read()
-
 accumulate_file_name = "python/accumulate.csv"
 with open(accumulate_file_name, encoding="UTF-8") as f_a:
     # 単語情報集積ファイルを読み込む
@@ -20,10 +13,23 @@ with open(accumulate_file_name, encoding="UTF-8") as f_a:
     for csvobj in csv.reader(accum_lines):
         print(csvobj)
 
+# ファイル名を出力
+print(input_file_name)
+ 
+# 指定されたファイルを読み込む
+# searchkey
+with open(input_file_name, encoding="UTF-8") as f:
+    data = f.read()
+    print("data:" + data)
+
 # 形態素解析結果を取得する
 text = MeCab.Tagger().parse(data)
+print("text: " + text)
 # 形態素解析結果を改行で分割
-lines = text.split("\n")
+tmplines = text.split("\n")
+
+# 重複データを省く
+lines = list(dict.fromkeys(tmplines))
 
 print('[LINES_DEBUG]')
 for lines_dbg in lines:
@@ -79,7 +85,7 @@ for line in lines:
                             accum_count+=1
                             accum_blocks[2] = str(accum_count)
                             is_exist_word = True
-                            print("accum_word:" + accum_word + " accum_count: " + str(accum_count))
+                            print("linenum: " + str(linenum) + " accum_word:" + accum_word + " accum_count: " + str(accum_count))
                             accum_lines[linenum] = accum_blocks[0]+ "," + accum_blocks[1] + ","  + str(accum_blocks[2])
                             print("accum_lines[num]: " + accum_lines[linenum])
                             break
@@ -94,10 +100,12 @@ for line in lines:
     linenum+=1
 
 # 結果を出力する
+print('*****************************************')
 print('Total : ' + str(cnt_word))
 print('Words : ' + ', '.join(words))
 print('candidates: ')
 for accum_line in accum_lines:
     print(accum_line)
+print('*****************************************')
 #    f_a.write(accum_line)
 f_a.close
