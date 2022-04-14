@@ -22,6 +22,9 @@ function Start-Parse {
 		Write-Host "searchstr length : $searchstrlen"
 		$starturl = $searchstr.IndexOf($findkey_http)
 		Write-Host "starturl : $starturl"
+		if ($starturl -eq "-1") {
+			break
+		}
 		$endurl = $searchstr.IndexOf($endofurl)
 		Write-Host "endurl : $endurl"
 

@@ -76,8 +76,10 @@ for line in lines:
                     words.append(word)
 
                     for accum_line in accum_lines:
+                        print("accum_line:" + accum_line)
                         accum_blocks = accum_line.split(",")
                         accum_word = accum_blocks[0].replace("'", "")
+                        print("accum_word: " + accum_word + "," + "accum_blocks[0]: " + accum_blocks[0])
                         accum_partspeech = accum_blocks[1]
                         accum_count = int(accum_blocks[2])
                         print('[DEBUG]' + 'word: '+ word + ', accum_word: ' + accum_word)
@@ -94,8 +96,10 @@ for line in lines:
                 if is_exist_word == False:
                     print("is_exist_word == False")
                     # candidates.extend(result_format)
-                    new_word = accum_word + "," + accum_partspeech + "," + str(1)
+                    new_word = "'" + word + "','" + item + "'" + "," + str(1)
+                    print("new_word: "+ new_word)
                     accum_lines.append(new_word)
+                    break
                 else:
                     break
     linenum+=1
@@ -104,9 +108,9 @@ for line in lines:
 print('*****************************************')
 print('Total : ' + str(cnt_word))
 print('Words : ' + ', '.join(words))
-print('candidates: ')
 print('*****************************************')
 # 集積ファイルへの書き込み
+print('candidates: ')
 with open(accumulate_file_name, 'w', encoding="UTF-8") as f_a:
     for accum_line in accum_lines:
         print(accum_line)
