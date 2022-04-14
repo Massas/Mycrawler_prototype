@@ -9,7 +9,8 @@ input_file_name= sys.argv[1]
 accumulate_file_name = "python/accumulate.csv"
 with open(accumulate_file_name, encoding="UTF-8") as f_a:
     # 単語情報集積ファイルを読み込む
-    accum_lines = f_a.readlines()
+    accum_tmp = f_a.readlines()
+    accum_lines = list(dict.fromkeys(accum_tmp))
     for csvobj in csv.reader(accum_lines):
         print(csvobj)
 
@@ -93,7 +94,7 @@ for line in lines:
                 if is_exist_word == False:
                     print("is_exist_word == False")
                     # candidates.extend(result_format)
-                    new_word = accum_word + "," + accum_partspeech + "," + str(0)
+                    new_word = accum_word + "," + accum_partspeech + "," + str(1)
                     accum_lines.append(new_word)
                 else:
                     break
