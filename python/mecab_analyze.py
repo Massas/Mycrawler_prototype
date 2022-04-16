@@ -1,7 +1,12 @@
 import csv
 import MeCab
 import sys
- 
+import re
+
+# 除外したいパターン
+re_alphabet = re.compile('[a-zA-Z]+')
+re_symbol = re.compile(',\.!><=?/')
+
 # 引数で指定されたファイル名を取得
 from sys import argv
 input_file_name= sys.argv[1]
@@ -64,14 +69,21 @@ for line in lines:
             print("========================================================")
             print("品詞解析")
             for item in items:
-                # カンマは解析しない
                 print("word = " + word + ", item = " + item)
                 if word == "," or word == " ":
                     break
+                if word.isdigit() == True:
+                    break
+                if word.isalnum() == True:
+                    break
+                if re_alphabet.match(word) == True or re_symbol.match(word) == True:
+                    break
 
+                istarget = False
                 # 対象文字の品詞が名詞、形容詞、動詞、副詞、いずれかの場合、カウンタをインクリメント
                 if item == "名詞" or item == "固有名詞" or item == "形容詞" or item == "動詞" or item == "副詞":
                     print('item == "名詞" or item == "固有名詞" or item == "形容詞" or item == "動詞" or item == "副詞"')
+                    istarget = True
                     cnt_word += 1
                     words.append(word)
 
@@ -93,7 +105,7 @@ for line in lines:
                             print("accum_lines[num]: " + accum_lines[linenum])
                             break
             
-                if is_exist_word == False:
+                if is_exist_word == False and istarget == True:
                     print("is_exist_word == False")
                     # candidates.extend(result_format)
                     new_word = "'" + word + "','" + item + "'" + "," + str(1)
