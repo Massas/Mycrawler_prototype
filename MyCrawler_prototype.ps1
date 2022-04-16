@@ -1,7 +1,9 @@
 
 function Invoke-MecabPython ($s) {
+	Write-Host "[Invoke-MecabPython]Python START"
     $pythonPath = "{0}\python\mecab_analyze.py" -f $PSScriptRoot
     Invoke-Expression -Command ("python -B '{0}' '{1}'" -f $pythonPath, $s)
+	Write-Host "[Invoke-MecabPython]Python END"
 }
 
 function Start-Parse {
@@ -15,7 +17,7 @@ function Start-Parse {
 	$searchstr = $responsestr
 
 	# mecab sample
-	Invoke-MecabPython($searchkeyfile)
+#	Invoke-MecabPython($searchkeyfile)
 
 	do{
 		$searchstrlen = $searchstr.length
@@ -58,12 +60,21 @@ function Start-Parse {
 	}else{
 		$urlcnt = $urlarr.Count
 		Write-Host "There are $urlcnt urls found!"
-		Write-Host $urlarr
 		$urlarr | Add-Content $logfile -Encoding UTF8
-	}
-	Write-Host "[Start-Parse] END"
 
-	return
+		foreach($tmp in $urlarr){
+			Start-Sleep 5
+			# get WebRequest content and extract words by morphological analysis 
+			$response = Invoke-WebRequest -Uri $tmp -UseBasicParsing
+			$responsestr = [string]$response.Content
+			$responsestr | Add-Content $contentfile -Encoding UTF8
+			# morphological analysis for WebRequest content
+			Invoke-MecabPython($contentfile)
+			Remove-Item $contentfile
+		}	
+	}
+
+	Write-Host "[Start-Parse] END"
 }
 
 function Get-Word {
@@ -99,11 +110,7 @@ function Start-Crawling {
 	# parse response and list urls
 	Start-Parse($responsestr)
 
-#	$response | Add-Content $logfile -Encoding UTF8
-#	$response.Content | Add-Content $logfile -Encoding UTF8
-
 	Write-Host "[Start-Crawling] END"
-
 }
 
 function Show-File {
@@ -128,6 +135,7 @@ Add-Type -AssemblyName System.Web	# url encode and decode
 $logfile = "./logfile.log"
 $searchkeyfile = "./Searchkey.csv"
 $candidatefile = "./Candidate.csv"
+$contentfile = "./content.txt"
 $partition = "==========================="
 $comma = ','
 
