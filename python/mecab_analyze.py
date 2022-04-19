@@ -4,8 +4,8 @@ import sys
 import re
 
 # 除外したいパターン
+re_specialchar = re.compile('[\_\.,:\>\<!=^~)(|?"\'+/\]\[*%&$\-}{#@;:]+')
 re_alphabet = re.compile('[a-zA-Z]+')
-re_symbol = re.compile(',\.!><=?/')
 
 # 引数で指定されたファイル名を取得
 from sys import argv
@@ -16,11 +16,7 @@ with open(accumulate_file_name, encoding="UTF-8") as f_a:
     # 単語情報集積ファイルを読み込む
     accum_tmp = f_a.readlines()
     accum_lines = list(dict.fromkeys(accum_tmp))
-    for csvobj in csv.reader(accum_lines):
-        print(csvobj)
 
-# ファイル名を出力
-print(input_file_name)
  
 # 指定されたファイルを読み込む
 # searchkey
@@ -30,19 +26,12 @@ with open(input_file_name, encoding="UTF-8") as f:
 
 # 形態素解析結果を取得する
 text = MeCab.Tagger().parse(data)
-print("text: " + text)
+#print("text: " + text)
 # 形態素解析結果を改行で分割
 tmplines = text.split("\n")
 
 # 重複データを省く
 lines = list(dict.fromkeys(tmplines))
-
-print('[LINES_DEBUG]')
-for lines_dbg in lines:
-    if lines_dbg == "" or lines_dbg == " " or lines_dbg == "EOS" or lines_dbg[0] == ",":
-        continue
-    else:
-        print("[" + lines_dbg + "]")
 
 cnt_word = 0 # 名詞の数
 words = [] # 抽出した単語のリスト
@@ -66,43 +55,45 @@ for line in lines:
         items = info.split(",") #品詞情報を分割
 
         if words.count(word) == 0:
-            print("========================================================")
-            print("品詞解析")
+            #print("========================================================")
+            #print("品詞解析")
             for item in items:
-                print("word = " + word + ", item = " + item)
-                if word == "," or word == " ":
-                    break
                 if word.isdigit() == True:
+                    #print("isdigit:break")
                     break
-                if word.isalnum() == True:
+                if re_specialchar.search(word) != None:
+                    #print("word = " + word + ", item = " + item)
+                    #print('this is special character:break')
                     break
-                if re_alphabet.match(word) == True or re_symbol.match(word) == True:
+                if re_alphabet.search(word) != None:
+                    #print('this is alphabet:break')
                     break
 
                 istarget = False
                 # 対象文字の品詞が名詞、形容詞、動詞、副詞、いずれかの場合、カウンタをインクリメント
                 if item == "名詞" or item == "固有名詞" or item == "形容詞" or item == "動詞" or item == "副詞":
-                    print('item == "名詞" or item == "固有名詞" or item == "形容詞" or item == "動詞" or item == "副詞"')
+                    #print('item == "名詞" or item == "固有名詞" or item == "形容詞" or item == "動詞" or item == "副詞"')
                     istarget = True
                     cnt_word += 1
                     words.append(word)
 
                     for accum_line in accum_lines:
-                        print("accum_line:" + accum_line)
+                        #print("accum_line:" + accum_line)
                         accum_blocks = accum_line.split(",")
                         accum_word = accum_blocks[0].replace("'", "")
-                        print("accum_word: " + accum_word + "," + "accum_blocks[0]: " + accum_blocks[0])
+                        #print("accum_word: " + accum_word + "," + "accum_blocks[0]: " + accum_blocks[0])
                         accum_partspeech = accum_blocks[1]
                         accum_count = int(accum_blocks[2])
-                        print('[DEBUG]' + 'word: '+ word + ', accum_word: ' + accum_word)
+                        #print('[DEBUG]' + 'word: '+ word + ', accum_word: ' + accum_word)
                         if word == accum_word:
-                            print("word == accum_word")
+                            #print("word == accum_word")
                             accum_count+=1
                             accum_blocks[2] = str(accum_count)
                             is_exist_word = True
                             print("linenum: " + str(linenum) + " accum_word:" + accum_word + " accum_count: " + str(accum_count))
                             accum_lines[linenum] = accum_blocks[0]+ "," + accum_blocks[1] + ","  + str(accum_blocks[2])
-                            print("accum_lines[num]: " + accum_lines[linenum])
+                            #print("accum_lines[num]: " + accum_lines[linenum])
+                            linenum+=1
                             break
             
                 if is_exist_word == False and istarget == True:
@@ -114,7 +105,6 @@ for line in lines:
                     break
                 else:
                     break
-    linenum+=1
 
 # 結果を出力する
 print('*****************************************')
