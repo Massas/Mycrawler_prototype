@@ -4,8 +4,10 @@ import sys
 import re
 
 # 除外したいパターン
-re_specialchar = re.compile('[\_\.,:\>\<!=^~)(|?"\'+/\]\[*%&$\-}{#@;:]+')
+re_specialchar = re.compile('[\_\.,:\>\<!=^~)(|?"\'+/\]⋅\[*%&$\-}{#@;:]+')
 re_alphabet = re.compile('[a-zA-Z]+')
+re_slash = re.compile(r'\+')
+re_return = re.compile('\n+')
 
 # 引数で指定されたファイル名を取得
 from sys import argv
@@ -68,6 +70,9 @@ for line in lines:
                 if re_alphabet.search(word) != None:
                     #print('this is alphabet:break')
                     break
+                if re_slash.search(word) != None:
+                    #print('slash:break')
+                    break
 
                 istarget = False
                 # 対象文字の品詞が名詞、形容詞、動詞、副詞、いずれかの場合、カウンタをインクリメント
@@ -78,7 +83,13 @@ for line in lines:
                     words.append(word)
 
                     for accum_line in accum_lines:
-                        #print("accum_line:" + accum_line)
+                        if len(accum_line) == 1 and accum_line == "\n":
+                            break
+                        if re_return.search(accum_line) != None:
+                            tmp = accum_line
+                            accum_line = tmp.replace("\n", '')
+
+                        print("accum_line:" + accum_line)
                         accum_blocks = accum_line.split(",")
                         accum_word = accum_blocks[0].replace("'", "")
                         #print("accum_word: " + accum_word + "," + "accum_blocks[0]: " + accum_blocks[0])
@@ -90,7 +101,7 @@ for line in lines:
                             accum_count+=1
                             accum_blocks[2] = str(accum_count)
                             is_exist_word = True
-                            print("linenum: " + str(linenum) + " accum_word:" + accum_word + " accum_count: " + str(accum_count))
+                            print("linenum: " + str(linenum) + " accum_word:" + accum_word + "accum_partspeech: " + accum_partspeech + " accum_count: " + str(accum_count))
                             accum_lines[linenum] = accum_blocks[0]+ "," + accum_blocks[1] + ","  + str(accum_blocks[2])
                             #print("accum_lines[num]: " + accum_lines[linenum])
                             linenum+=1
