@@ -1,4 +1,10 @@
 
+function Invoke-MecabSentence ($s) {
+	Write-Host "[Invoke-MecabSentence]Python START"
+    $pythonPath = "{0}\python\mecab_sentence.py" -f $PSScriptRoot
+    Invoke-Expression -Command ("python -B '{0}' '{1}'" -f $pythonPath, $s)
+	Write-Host "[Invoke-MecabSentence]Python END"
+}
 function Invoke-MecabPython ($s) {
 	Write-Host "[Invoke-MecabPython]Python START"
     $pythonPath = "{0}\python\mecab_analyze.py" -f $PSScriptRoot
@@ -15,9 +21,6 @@ function Start-Parse {
 	$readpoint = 0
 	$urlarr = @()
 	$searchstr = $responsestr
-
-	# mecab sample
-#	Invoke-MecabPython($searchkeyfile)
 
 	do{
 		$searchstrlen = $searchstr.length
@@ -69,8 +72,9 @@ function Start-Parse {
 			$responsestr = [string]$response.Content
 			$responsestr | Add-Content $contentfile -Encoding UTF8
 			# morphological analysis for WebRequest content
-			Invoke-MecabPython($contentfile)
-			Remove-Item $contentfile
+			#Invoke-MecabPython($contentfile)
+			#Remove-Item $contentfile
+			Invoke-MecabSentence($contentfile)
 		}	
 	}
 
