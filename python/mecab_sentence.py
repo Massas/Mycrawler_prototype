@@ -75,6 +75,13 @@ for word in wordlist:
     if len(word) == 0:
         continue
 
+    # 抽出した文章の構成要素は飛ばす
+    ret = sentence.find(word)
+    print("find ret: " + str(ret))
+    if ret != -1:
+        print("this word is contained in sentence")
+        continue
+
     #形態素解析結果を分割
     blocks = word.split("\t")
     if blocks[0] != "" or len(blocks[0] >= 1):
@@ -84,7 +91,7 @@ for word in wordlist:
             continue
 
     # データ塊の中から抽出ワードを走査する
-    if data_tmp.find(blocks[0]) != 0 or data_tmp.find(blocks[0]) != -1:
+    if data_tmp.find(blocks[0]) != -1:
         datalen = len(data_tmp)
         print("data length : " + str(datalen))
         startsentence = data_tmp.find(blocks[0])
@@ -103,7 +110,6 @@ for word in wordlist:
         tmp = data_tmp[readpoint:datalen - readpoint]
         data_tmp = tmp
         sentences.append(sentence)
-        sleep(1)
 
 # 抽出した文章を確認する
 print("extract result")
@@ -111,4 +117,4 @@ extractfile = "python/extract_sentences.txt"
 f_extract = open(extractfile, "w+", encoding="UTF-8")
 for sentence_result in sentences:
     print(sentence_result)
-    f_extract.write(sentence_result)
+    f_extract.write(sentence_result + "\n")
