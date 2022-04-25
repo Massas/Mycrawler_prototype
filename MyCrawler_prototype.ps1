@@ -67,14 +67,19 @@ function Start-Parse {
 
 		foreach($tmp in $urlarr){
 			Start-Sleep 5
+			$i += 1
+			$count = $urlarr.Count
+			Write-Host $i'/'$count
+			Write-Host "URI: "$tmp
 			# get WebRequest content and extract words by morphological analysis 
 			$response = Invoke-WebRequest -Uri $tmp -UseBasicParsing
 			$responsestr = [string]$response.Content
 			$responsestr | Add-Content $contentfile -Encoding UTF8
 			# morphological analysis for WebRequest content
 			#Invoke-MecabPython($contentfile)
-			#Remove-Item $contentfile
 			Invoke-MecabSentence($contentfile)
+			Remove-Item $contentfile
+			
 		}	
 	}
 

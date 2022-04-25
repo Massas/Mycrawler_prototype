@@ -176,12 +176,14 @@ for word in wordlist:
         data_tmp = tmp
         # 不要なデータを取り除く
         writestr = remove_unneccesary(sentence)
-        sentences.append(writestr)
+        if(len(writestr) != 0):
+            sentences.append(writestr)
+        
 
 # 抽出した文章を確認する
 print("extract result")
 extractfile = "python/extract_sentences.txt"
-f_extract = open(extractfile, "w+", encoding="UTF-8")
+f_extract = open(extractfile, "a", encoding="UTF-8")
 for sentence_result in sentences:
     print(sentence_result)
     f_extract.write(sentence_result + "\n")
