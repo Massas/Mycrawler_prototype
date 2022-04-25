@@ -3,6 +3,53 @@ import MeCab
 import sys
 import re
 
+def remove_unneccesary(str):
+    writestr = ""
+    tmp = str
+    tmp2 = ""
+    if tmp.find('<!DOCTYPE html>'):
+        tmp2 = tmp.replace('<!DOCTYPE html>','')
+        tmp = tmp2
+#        print("[remove_unneccesary1]tmp: " + tmp)
+    if tmp.find('</a>'):
+        tmp2 = tmp.replace('</a>','')
+        tmp = tmp2
+#        print("[remove_unneccesary2]tmp: " + tmp)
+    while tmp.find('@font-face {') != -1 and tmp.find('}') != -1:
+        start = tmp.find('@font-face {')
+        end = tmp.find('>')
+        deltmp = tmp[start:end+1]
+        tmp2 = tmp.replace(deltmp,'')
+        tmp = tmp2
+#        print("[remove_unneccesary3]tmp: " + tmp)
+    while tmp.find('<') != -1 and tmp.find('>') != -1:
+        start = tmp.find('<')
+        end = tmp.find('>')
+        deltmp = tmp[start:end+1]
+        tmp2 = tmp.replace(deltmp,'')
+        tmp = tmp2
+#        print("[remove_unneccesary4]tmp: " + tmp)
+    if tmp.find('<metacontent="'):
+        end = tmp.find('<metacontent="')
+        deltmp = tmp[0:end+1]
+        tmp2 = tmp.replace(deltmp,'')
+        tmp = tmp2
+#        print("[remove_unneccesary5]tmp: " + tmp)
+    if tmp.find('">'):
+        tmp2 = tmp.replace('">','')
+        tmp = tmp2
+        print("[remove_unneccesary6]tmp: " + tmp)
+    if tmp.rfind('\\\"') != -1:
+        start = tmp.rfind('\\\"')
+        end = tmp.rfind('。')
+        if start != -1:
+            tmp = tmp[start:end+1]
+        print("[remove_unneccesary7]tmp: " + tmp)
+
+    writestr = tmp.replace(' ','') 
+    print("[remove_unneccesary] writestr:["+writestr+"]")
+    return writestr
+
 # 除外したいパターン
 re_specialchar = re.compile('[\_\.,:\>\<!=^~)(|?"\'+/\]⋅\[*%&$\-}{#@;:]+')
 re_alphabet = re.compile('[a-zA-Z]+')
@@ -45,7 +92,6 @@ for line in lines:
     if len(blocks) > 1:
         word = blocks[0] # 抽出ワード：モザイク,壮大,トプカプ etc
         info  = blocks[1] # 品詞情報
-
         if word.isdigit() == True or re_specialchar.search(word) != None or re_alphabet.search(word) != None or re_slash.search(word) != None:
             continue
 
@@ -97,7 +143,7 @@ for word in wordlist:
         startsentence = data_tmp.find(blocks[0])
         print("startsentence : " + str(startsentence))
         # 文末を探す
-        endsentence = data_tmp.find("。")
+        endsentence = data_tmp.find('。',startsentence)
         if endsentence == endsentence_tmp:
             print("no endsentence")
         else:
@@ -109,7 +155,9 @@ for word in wordlist:
         readpoint = endsentence + 1
         tmp = data_tmp[readpoint:datalen - readpoint]
         data_tmp = tmp
-        sentences.append(sentence)
+        # 不要なデータを取り除く
+        writestr = remove_unneccesary(sentence)
+        sentences.append(writestr)
 
 # 抽出した文章を確認する
 print("extract result")
