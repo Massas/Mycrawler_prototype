@@ -7,38 +7,57 @@ def remove_unneccesary(str):
     writestr = ""
     tmp = str
     tmp2 = ""
-    if tmp.find('<!DOCTYPE html>'):
+    if tmp.rfind('">') != -1:
+        start = tmp.rfind('">')
+        end = tmp.rfind('。')
+        if start != -1:
+            tmp = tmp[start+len('">'):end]
+        print("[remove_unneccesary9]tmp: " + tmp)
+    while tmp.find('<title>') != -1 and tmp.find('</title>') != -1:
+        start = tmp.find('<title>')
+        end = tmp.find('</title>')
+        deltmp = tmp[start:end+len('</title>')]
+        tmp2 = tmp.replace(deltmp,'')
+        tmp = tmp2
+        print("[remove_unneccesary10]tmp: " + tmp)
+    while tmp.find('<script') != -1 and tmp.find('</script>') != -1:
+        start = tmp.find('<script')
+        end = tmp.find('</script>')
+        deltmp = tmp[start:end+len('</script>')]
+        tmp2 = tmp.replace(deltmp,'')
+        tmp = tmp2
+        print("[remove_unneccesary8]tmp: " + tmp)
+    if tmp.find('<!DOCTYPE html>') != -1:
         tmp2 = tmp.replace('<!DOCTYPE html>','')
         tmp = tmp2
-#        print("[remove_unneccesary1]tmp: " + tmp)
+        print("[remove_unneccesary1]tmp: " + tmp)
     if tmp.find('</a>'):
         tmp2 = tmp.replace('</a>','')
         tmp = tmp2
-#        print("[remove_unneccesary2]tmp: " + tmp)
+        print("[remove_unneccesary2]tmp: " + tmp)
+    if tmp.find('<metacontent="') != -1:
+        tmp2 = tmp.replace('<metacontent="','')
+        tmp = tmp2
+        print("[remove_unneccesary5]tmp: " + tmp)
     while tmp.find('@font-face {') != -1 and tmp.find('}') != -1:
         start = tmp.find('@font-face {')
         end = tmp.find('>')
         deltmp = tmp[start:end+1]
         tmp2 = tmp.replace(deltmp,'')
         tmp = tmp2
-#        print("[remove_unneccesary3]tmp: " + tmp)
+        print("[remove_unneccesary3]tmp: " + tmp)
+    if tmp.find('">'):
+        tmp2 = tmp.replace('">','')
+        tmp = tmp2
+        print("[remove_unneccesary6]tmp: " + tmp)
     while tmp.find('<') != -1 and tmp.find('>') != -1:
         start = tmp.find('<')
         end = tmp.find('>')
         deltmp = tmp[start:end+1]
         tmp2 = tmp.replace(deltmp,'')
         tmp = tmp2
-#        print("[remove_unneccesary4]tmp: " + tmp)
-    if tmp.find('<metacontent="'):
-        end = tmp.find('<metacontent="')
-        deltmp = tmp[0:end+1]
-        tmp2 = tmp.replace(deltmp,'')
-        tmp = tmp2
-#        print("[remove_unneccesary5]tmp: " + tmp)
-    if tmp.find('">'):
-        tmp2 = tmp.replace('">','')
-        tmp = tmp2
-        print("[remove_unneccesary6]tmp: " + tmp)
+        print("[remove_unneccesary4]tmp: " + tmp)
+        sleep(1)
     if tmp.rfind('\\\"') != -1:
         start = tmp.rfind('\\\"')
         end = tmp.rfind('。')
