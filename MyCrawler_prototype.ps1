@@ -1,4 +1,11 @@
 
+function Invoke-MecabSentenceBeautiful ($s) {
+	Write-Host "[Invoke-MecabSentenceBeautiful]Python START"
+    $pythonPath = "{0}\python\mecab_sentence beautiful.py" -f $PSScriptRoot
+    Invoke-Expression -Command ("python -B '{0}' '{1}'" -f $pythonPath, $s)
+	Write-Host "[Invoke-MecabSentenceBeautiful]Python END"
+}
+
 function Invoke-MecabSentence ($s) {
 	Write-Host "[Invoke-MecabSentence]Python START"
     $pythonPath = "{0}\python\mecab_sentence.py" -f $PSScriptRoot
@@ -77,7 +84,8 @@ function Start-Parse {
 			$responsestr | Add-Content $contentfile -Encoding UTF8
 			# morphological analysis for WebRequest content
 			#Invoke-MecabPython($contentfile)
-			Invoke-MecabSentence($contentfile)
+			#Invoke-MecabSentence($contentfile)
+			Invoke-MecabSentenceBeautiful($contentfile)
 			Remove-Item $contentfile
 			
 		}	
